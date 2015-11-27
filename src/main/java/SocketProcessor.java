@@ -1,23 +1,18 @@
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
-/**
- * Created by varuchin on 23.11.2015.
- */
-public class SocketProcessor
-{
+
+public class SocketProcessor implements Runnable {
 
     private Socket s;
     private InputStream is;
     private OutputStream os;
-    public Runnable createResponse = () ->
-    {
+
+    @Override
+    public void run() {
 
         try {
-            Thread.sleep(1000);
+            //Thread.sleep(1000);
             readInputHeaders();
             writeResponse("<html>\n" +
                     " <head>\n" +
@@ -44,28 +39,28 @@ public class SocketProcessor
             }
         }
         System.err.println("Client processing finished.");
-    };
+    }
 
 
-    public SocketProcessor(Socket s) throws Throwable
-    {
+
+    public SocketProcessor(Socket s) throws IOException {
         this.s = s;
         this.is = s.getInputStream();
         this.os = s.getOutputStream();
     }
 
 
-    private void writeResponse(String s) throws Throwable
-    {
-        StringBuilder Responsebuilder = new StringBuilder();
+    private void writeResponse(String s) throws Throwable {
+        StringBuilder ResponseBuilder = new StringBuilder();
 
-        Responsebuilder.append("HTTP/1.1 200 OK\r\n");
-        Responsebuilder.append("Server: varuchinServer/2015-11-16\r\n");
-        Responsebuilder.append("Content-Type: text/html\n");
-        Responsebuilder.append("Content-Length: " + s.length() + "\r\n");
-        Responsebuilder.append("Connection: close\r\n\r\n");
+        ResponseBuilder.append("HTTP/1.1 200 OK\n");
+        ResponseBuilder.append("Server: varuchinServer/2015-11-16\n");
+        ResponseBuilder.append("Content-Type: text/html\n");
+        ResponseBuilder.append("Content-Length: " + s.length() + "\n");
+        ResponseBuilder.append("Connection: close\n\n");
+//camel case
 
-        String response = Responsebuilder.toString();
+        String response = ResponseBuilder.toString();
 
         StringBuilder ResultBuilder = new StringBuilder();
         ResultBuilder.append(response);
@@ -78,8 +73,7 @@ public class SocketProcessor
     }
 
 
-    private void readInputHeaders() throws Throwable
-    {
+    private void readInputHeaders() throws Throwable {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         while (true) {
             String s = br.readLine();
